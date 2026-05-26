@@ -1,0 +1,12 @@
+이 프로젝트가 비어 있지 않은지 확인할 파일 목록
+
+settings.gradle
+build.gradle
+app/build.gradle
+app/src/main/AndroidManifest.xml
+app/src/main/assets/index.html
+app/src/main/java/com/cheljae/insuranceanalyzer/MainActivity.java
+app/src/main/res/values/strings.xml
+app/src/main/res/values/styles.xml
+app/src/main/res/drawable/ic_launcher.xml
+README_APK_BUILD.txt

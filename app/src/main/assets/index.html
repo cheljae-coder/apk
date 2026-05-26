@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>보험 약관 정밀분석 및 청구전략 리포트 프로그램</title>
+<style>
+:root {
+    --navy:#0f172a; --navy2:#1e293b; --blue:#2563eb; --blue2:#1d4ed8;
+    --sky:#eff6ff; --bg:#f3f6fb; --white:#fff; --text:#111827; --muted:#64748b;
+    --border:#dbe4f0; --green:#047857; --greenbg:#ecfdf5; --red:#b91c1c; --redbg:#fef2f2;
+    --amber:#92400e; --amberbg:#fffbeb; --shadow:0 18px 45px rgba(15,23,42,.16);
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; font-family:"Malgun Gothic","Apple SD Gothic Neo",Arial,sans-serif; background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 48%,#0f172a 100%); color:var(--text); }
+button,input,select,textarea { font-family:inherit; }
+.app-header { padding:22px; border-bottom:1px solid rgba(255,255,255,.12); background:rgba(15,23,42,.88); color:#fff; }
+.header-inner { max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; gap:16px; align-items:center; }
+.header-title-small { color:#bfdbfe; font-size:12px; font-weight:900; letter-spacing:.12em; }
+.header-title { margin:8px 0 0; font-size:27px; line-height:1.25; font-weight:900; }
+.header-desc { margin:8px 0 0; color:#cbd5e1; font-size:14px; line-height:1.6; }
+.header-badge { min-width:230px; border:1px solid rgba(147,197,253,.35); background:rgba(37,99,235,.18); padding:13px 15px; border-radius:18px; }
+.header-badge strong { display:block; font-size:15px; }
+.header-badge span { display:block; margin-top:5px; color:#dbeafe; font-size:13px; line-height:1.5; }
+.main { max-width:1180px; margin:0 auto; padding:24px; }
+.main.input-mode { display:flex; justify-content:center; }
+.main.input-mode .input-panel { width:min(100%,880px); display:block; }
+.main.input-mode .report-panel { display:none !important; }
+.main.report-mode .input-panel { display:none !important; }
+.main.report-mode .report-panel { display:block !important; width:100%; }
+.panel { background:rgba(255,255,255,.97); border:1px solid rgba(255,255,255,.62); border-radius:28px; box-shadow:var(--shadow); }
+.input-panel,.report-panel { padding:22px; }
+.panel-heading { background:var(--navy); color:#fff; border-radius:22px; padding:20px; margin-bottom:18px; }
+.panel-heading h2 { margin:0; font-size:22px; font-weight:900; }
+.panel-heading p { margin:8px 0 0; color:#cbd5e1; font-size:14px; line-height:1.65; }
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.field { display:block; margin-bottom:14px; }
+.field span { display:block; margin-bottom:7px; color:#334155; font-size:14px; font-weight:900; }
+.input,.select,.textarea { width:100%; border:1px solid #cbd5e1; border-radius:15px; background:#fff; padding:13px 14px; color:#0f172a; font-size:14px; outline:none; transition:.18s; }
+.textarea { min-height:110px; resize:vertical; line-height:1.65; }
+.textarea.large { min-height:210px; }
+.textarea.compact { min-height:105px; }
+.input:focus,.select:focus,.textarea:focus { border-color:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,.14); }
+.help-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px; padding:14px; color:#475569; line-height:1.65; font-size:14px; margin-bottom:16px; }
+.help-box strong { color:#0f172a; }
+.auto-code-box,.multi-input-box,.file-box { border:1px solid #bfdbfe; background:#eff6ff; border-radius:22px; padding:16px; margin-bottom:16px; }
+.auto-code-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+.auto-code-head strong,.multi-title strong { color:#1e3a8a; font-size:15px; font-weight:900; }
+.auto-code-head p,.multi-title p,.file-box p { margin:5px 0 0; color:#1d4ed8; line-height:1.6; font-size:13px; }
+.small-btn { border:0; background:#1d4ed8; color:#fff; border-radius:14px; padding:10px 13px; cursor:pointer; font-weight:900; white-space:nowrap; }
+.status-line { margin-top:10px; background:#fff; border:1px solid #bfdbfe; border-radius:14px; padding:10px; color:#1d4ed8; font-size:13px; line-height:1.55; }
+.status-line.warn { border-color:#fde68a; background:#fffbeb; color:#92400e; }
+.status-line.ok { border-color:#bbf7d0; background:#ecfdf5; color:#047857; }
+details.input-menu { border:1px solid #dbeafe; background:#fff; border-radius:18px; margin-top:10px; overflow:hidden; }
+details.input-menu summary { cursor:pointer; padding:14px 15px; font-weight:900; color:#0f172a; background:#f8fafc; }
+.input-menu-body { padding:12px 14px 14px; border-top:1px solid #e2e8f0; }
+.input-menu-help { margin:0 0 8px; color:#64748b; font-size:13px; line-height:1.55; }
+.button-row { display:grid; grid-template-columns:1fr 150px; gap:12px; margin-top:18px; }
+.btn { border:0; border-radius:18px; padding:15px 18px; cursor:pointer; font-weight:900; font-size:15px; transition:.14s; }
+.btn:active { transform:translateY(1px); }
+.btn-primary { background:var(--blue); color:#fff; box-shadow:0 10px 24px rgba(37,99,235,.3); }
+.btn-primary:hover { background:var(--blue2); }
+.btn-white { border:1px solid #cbd5e1; background:#fff; color:#334155; }
+.btn-dark { background:#0f172a; color:#fff; }
+.btn-soft { width:100%; margin-top:12px; border:1px solid #cbd5e1; background:#f8fafc; color:#475569; }
+.report-top { background:#fff; border-radius:22px; padding:18px 20px; display:flex; justify-content:space-between; gap:14px; align-items:center; margin-bottom:18px; }
+.report-top h2 { margin:0; font-size:22px; font-weight:900; }
+.report-top p { margin:5px 0 0; color:#64748b; font-size:14px; line-height:1.55; }
+.badge { display:inline-flex; align-items:center; justify-content:center; padding:9px 14px; border-radius:999px; font-size:13px; font-weight:900; background:#f1f5f9; color:#475569; white-space:nowrap; }
+.badge.running { background:#dbeafe; color:#1d4ed8; }
+.badge.done { background:#dcfce7; color:#047857; }
+.loading { display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:26px; padding:40px 24px; text-align:center; margin-bottom:18px; }
+.loading h3 { margin:18px 0 0; color:#1e3a8a; }
+.loading p { color:#1d4ed8; font-size:14px; }
+.dots { display:flex; justify-content:center; gap:10px; }
+.dot { width:11px; height:11px; border-radius:50%; background:#2563eb; animation:pulse .85s infinite ease-in-out; }
+.dot:nth-child(2) { animation-delay:.15s; } .dot:nth-child(3) { animation-delay:.3s; }
+@keyframes pulse { 0%,100% { transform:translateY(0); opacity:.35; } 50% { transform:translateY(-8px); opacity:1; } }
+.report-card { background:#fff; border:1px solid #e2e8f0; border-radius:24px; padding:20px; margin-bottom:18px; }
+.title-box { background:#0f172a; color:#fff; border-radius:22px; padding:20px; margin-bottom:18px; }
+.title-row { display:flex; justify-content:space-between; gap:15px; align-items:center; }
+.title-box h2 { margin:8px 0 0; font-size:24px; }
+.title-box p { margin:8px 0 0; color:#cbd5e1; font-size:14px; line-height:1.55; }
+.risk { min-width:132px; border-radius:18px; padding:14px; text-align:center; font-weight:900; background:#dbeafe; color:#1d4ed8; }
+.risk.high { background:#ffedd5; color:#c2410c; } .risk.critical { background:#fee2e2; color:#b91c1c; } .risk.low { background:#f1f5f9; color:#475569; }
+.section-head { display:flex; gap:12px; align-items:center; margin-bottom:14px; }
+.section-icon { width:46px; height:46px; border-radius:17px; background:#2563eb; color:#fff; display:flex; align-items:center; justify-content:center; font-size:23px; flex:0 0 auto; }
+.section-head h3 { margin:0; font-size:19px; font-weight:900; }
+.section-head p { margin:4px 0 0; color:#64748b; font-size:13px; line-height:1.45; }
+.list { display:grid; gap:10px; margin:0; padding:0; list-style:none; }
+.list li { display:flex; gap:11px; background:#f8fafc; border-radius:16px; padding:12px; color:#334155; font-size:14px; line-height:1.65; }
+.num { width:26px; height:26px; border-radius:999px; background:#2563eb; color:#fff; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:12px; font-weight:900; }
+.tag-row { display:flex; flex-wrap:wrap; gap:8px; }
+.tag { display:inline-flex; border-radius:999px; padding:7px 11px; background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8; font-size:12px; font-weight:900; }
+.info { border-radius:22px; padding:18px; margin-bottom:18px; border:1px solid #fecaca; background:#fef2f2; }
+.info.success { border-color:#bbf7d0; background:#ecfdf5; }
+.info h3 { margin:0; font-size:19px; font-weight:900; color:#7f1d1d; }
+.info.success h3 { color:#064e3b; }
+.info p { margin:7px 0 0; line-height:1.65; font-size:14px; color:#991b1b; }
+.info.success p { color:#047857; }
+.need-list { display:grid; gap:10px; margin-top:14px; }
+.need-item { display:flex; gap:11px; align-items:flex-start; background:#fff; border:1px solid #fecaca; border-radius:16px; padding:12px; transition:.15s; }
+.need-item.checked { background:#f0fdf4; border-color:#86efac; }
+.need-item input { width:22px; height:22px; margin-top:2px; }
+.need-item strong { display:block; color:#7f1d1d; font-size:14px; line-height:1.55; }
+.need-item span { display:inline-flex; margin-top:6px; padding:5px 9px; border-radius:999px; background:#fee2e2; color:#991b1b; font-size:12px; font-weight:900; }
+.need-item.checked strong { color:#065f46; text-decoration:line-through; }
+.need-item.checked span { background:#dcfce7; color:#047857; }
+.terms-block { background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:12px; margin-top:10px; color:#334155; font-size:13px; line-height:1.7; white-space:pre-wrap; }
+.action-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:16px; }
+.footer-note { max-width:1180px; margin:0 auto; padding:0 24px 24px; color:#cbd5e1; font-size:12px; line-height:1.6; }
+@media print { body { background:#fff; } .app-header,.input-panel,.report-top,.action-row,.footer-note,.loading { display:none !important; } .main { display:block; max-width:none; padding:0; } .report-panel { display:block !important; box-shadow:none; border:0; padding:0; } .need-item input { display:none; } }
+@media (max-width:760px) { .header-inner,.title-row,.report-top { flex-direction:column; align-items:flex-start; } .header-badge { width:100%; min-width:auto; } .main { padding:14px; } .grid-2,.grid-3,.button-row,.action-row { grid-template-columns:1fr; } .header-title { font-size:22px; } }
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div>
+      <div class="header-title-small">INSURANCE CLAIM STRATEGY ANALYZER</div>
+      <h1 class="header-title">보험 약관 정밀분석 및 청구전략 리포트 프로그램</h1>
+      <p class="header-desc">보험금 액수를 계산하지 않고, 어떤 보험·특약을 청구해야 하는지, 약관의 어느 부분이 근거가 되는지, 준비서류와 지급거절 대응전략을 정리합니다.</p>
+    </div>
+    <div class="header-badge"><strong>단독 실행형 HTML</strong><span>분석 버튼 작동부를 외부 라이브러리와 분리한 안정형 버전</span></div>
+  </div>
+</header>
+
+<main class="main input-mode" id="appMain">
+  <section class="panel input-panel" id="inputPanel">
+    <div class="panel-heading"><h2>사건 기본 입력</h2><p>처음에는 이 입력 화면만 표시됩니다. 1분 보상 분석하기를 누르면 입력 화면은 숨겨지고 자동분석 리포트만 표시됩니다.</p></div>
+
+    <div class="grid-2">
+      <label class="field"><span>분석 대상 유형</span><select id="claimantType" class="select"><option value="auto">자동판단</option><option value="farmer">농업인·농작업 사고</option><option value="general">일반 보험가입자</option><option value="worker">근로자·산재 검토</option><option value="traffic">교통사고·운전자보험</option></select></label>
+      <label class="field"><span>중점 분석 보험</span><select id="insuranceFocus" class="select"><option value="all">전체 보장 통합분석</option><option value="life">생명보험·진단비 중심</option><option value="nonlife">손해보험·상해보험 중심</option><option value="driver">운전자보험·교통사고 중심</option><option value="liability">배상책임·화재·법률비용 중심</option></select></label>
+    </div>
+    <div class="grid-3">
+      <label class="field"><span>환자명</span><input id="patientName" class="input" type="text" placeholder="예: 홍길동"></label>
+      <label class="field"><span>연령</span><input id="patientAge" class="input" type="number" min="0" max="120" placeholder="예: 68"></label>
+      <label class="field"><span>성별</span><select id="patientGender" class="select"><option value="">선택 안 함</option><option value="남성">남성</option><option value="여성">여성</option></select></label>
+    </div>
+    <div class="grid-2">
+      <label class="field"><span>농업경영체 등록 여부</span><select id="farmStatus" class="select"><option value="">모름</option><option value="등록">등록</option><option value="미등록">미등록</option></select></label>
+      <label class="field"><span>농업인 안전보험 가입 여부</span><select id="safetyInsurance" class="select"><option value="">모름</option><option value="가입">가입</option><option value="미가입">미가입</option></select></label>
+    </div>
+    <div class="help-box"><strong>농업인 전용 확인항목</strong><br>농업경영체 등록 여부와 농업인 안전보험 가입 여부는 일반 생명보험·손해보험의 보험금 산정 항목이 아닙니다. 농업인 안전보험, 농기계종합보험, 국고·지자체 보험료 지원, 농작업성 입증 검토 때만 반영됩니다.</div>
+
+    <label class="field"><span>병원 진단서 및 의무기록지 텍스트</span><textarea id="medicalText" class="textarea large" placeholder="예: 진단명 요추 추간판장애, 질병코드 M51.1, 경운기 작업 중 넘어짐, 압박골절, 입원치료, 수술 시행 등"></textarea></label>
+    <div class="auto-code-box"><div class="auto-code-head"><div><strong>진단서 텍스트 기반 질병코드 자동입력</strong><p>진단서 또는 의무기록 내용을 붙여넣으면 KCD/ICD 코드를 자동 추출합니다. 코드가 없으면 진단명 키워드로 대표 코드를 추정합니다.</p></div><button id="autoCodeBtn" class="small-btn" type="button">코드 자동추출</button></div><div id="autoCodeResult" class="status-line warn">자동추출 대기 중입니다.</div></div>
+    <label class="field"><span>질병코드 KCD 또는 ICD-10 자동입력 및 직접수정</span><input id="codeInput" class="input" type="text" placeholder="예: M51, S32, S52, T60"></label>
+
+    <div class="multi-input-box">
+      <div class="multi-title"><strong>분석자료 세부 입력 메뉴</strong><p>진단서 외에 보험증권, 약관, 치료자료, 사고사실확인서, 보험사 안내문을 항목별로 넣으면 통합 분석합니다.</p></div>
+      <details class="input-menu" open><summary>1. 사고 경위 및 발생장소 자료</summary><div class="input-menu-body"><p class="input-menu-help">초진기록지의 사고 경위, 사고 장소, 작업 내용, 교통사고 내용, 목격자 진술을 입력하십시오.</p><textarea id="accidentText" class="textarea compact" placeholder="예: 고추밭 작업 후 경운기에서 하차 중 밭두렁에서 미끄러짐 / 출근 중 차량 추돌 / 계단에서 낙상 등"></textarea></div></details>
+      <details class="input-menu"><summary>2. 보험가입자료·보험증권·특약자료</summary><div class="input-menu-body"><p class="input-menu-help">보험증권, 가입설계서, 특약명, 보험기간, 납입상태, 피보험자 정보를 입력하십시오.</p><textarea id="policyText" class="textarea compact" placeholder="예: 상해후유장해, 골절진단비, 수술비, 입원일당, 실손의료비, 운전자보험 등"></textarea></div></details>
+      <details class="input-menu" open><summary>3. 보험약관 원문·지급사유·면책조항 입력</summary><div class="input-menu-body"><p class="input-menu-help">약관의 보험금 지급사유, 지급하지 않는 사유, 장해분류표, 수술의 정의, 입원의 정의, 청구서류 조항을 붙여넣으십시오.</p><textarea id="policyTermsText" class="textarea compact" placeholder="예: 제○조 보험금의 지급사유, 상해후유장해보험금, 골절진단보험금, 수술보험금, 보험금을 지급하지 않는 사유, 청구서류 조항 등"></textarea></div></details>
+      <details class="input-menu"><summary>4. 치료·수술·입원·진료비 자료</summary><div class="input-menu-body"><p class="input-menu-help">수술기록지, 입퇴원확인서, 진료비 영수증, 진료비 세부내역서, 보존적 치료 여부를 입력하십시오.</p><textarea id="treatmentText" class="textarea compact" placeholder="예: 입원 14일, 금속판 고정술, 핀고정술, 인공관절 치환술, MRI, CT, 물리치료 등"></textarea></div></details>
+      <details class="input-menu"><summary>5. 행정·산재·농업인 입증자료</summary><div class="input-menu-body"><p class="input-menu-help">농업경영체 등록확인서, 사고사실확인서, 119구급기록, 경찰기록, 산재 관련 자료, 농협 사고접수 내용을 입력하십시오.</p><textarea id="adminEvidenceText" class="textarea compact" placeholder="예: 농업경영체 등록, 농협 사고접수, 119 구급기록, 경찰 사고접수, 산재 신청 예정 등"></textarea></div></details>
+      <details class="input-menu"><summary>6. 배상책임·화재·법률비용·교통사고 자료</summary><div class="input-menu-body"><p class="input-menu-help">상대방 과실, 차량번호, 화재·누수·대물피해, 형사합의, 벌금, 변호사선임비용 자료를 입력하십시오.</p><textarea id="liabilityText" class="textarea compact" placeholder="예: 상대 차량 추돌, 형사합의 필요, 벌금 가능성, 일상생활배상책임, 누수 피해 등"></textarea></div></details>
+      <details class="input-menu"><summary>7. 보험사 안내·분쟁·기존 청구 이력</summary><div class="input-menu-body"><p class="input-menu-help">보험사의 부지급 안내, 삭감 사유, 손해사정 의견, 기존 청구 내역, 금융감독원 민원 검토 사항을 입력하십시오.</p><textarea id="claimHistoryText" class="textarea compact" placeholder="예: 보험사에서 퇴행성 기왕증을 이유로 상해후유장해 부지급 안내 등"></textarea></div></details>
+      <details class="input-menu"><summary>8. 추가 상담 메모·고객 진술</summary><div class="input-menu-body"><p class="input-menu-help">고객 진술, 추가 사실관계, 행정사가 확인한 쟁점을 입력하십시오.</p><textarea id="memoText" class="textarea compact" placeholder="예: 사고 전 동일 부위 치료력 여부 추가 확인 필요 등"></textarea></div></details>
+      <details class="input-menu"><summary>9. 첨부파일 OCR·문서 파싱</summary><div class="input-menu-body"><p class="input-menu-help">TXT, CSV, JSON, MD, XML, HTML은 즉시 읽습니다. PDF, DOCX, HWPX, 이미지 OCR은 인터넷 연결 시 외부 파서를 동적으로 불러옵니다. 분석 버튼 작동과는 분리되어 있습니다.</p><input id="analysisFiles" class="input" type="file" multiple accept=".txt,.csv,.json,.md,.xml,.html,.htm,.pdf,.jpg,.jpeg,.png,.webp,.bmp,.docx,.hwpx,.hwp,.doc"><div id="fileStatus" class="status-line warn">선택된 파일이 없습니다.</div><div id="parserLog" class="status-line">문서 파싱 대기 중입니다.</div><textarea id="documentExtractText" class="textarea compact" placeholder="첨부파일에서 추출된 텍스트가 여기에 자동 누적됩니다."></textarea></div></details>
+    </div>
+
+    <div class="button-row"><button id="analyzeBtn" class="btn btn-primary" type="button">1분 보상 분석하기</button><button id="sampleBtn" class="btn btn-white" type="button">예시 입력</button></div>
+    <button id="resetBtn" class="btn btn-soft" type="button">입력값 초기화</button>
+    <div class="help-box" style="margin-top:14px;"><strong>운영 기준</strong><br>이 프로그램은 “얼마를 받을 수 있다”가 아니라 “어떤 보험·특약을 청구해야 하는가, 어떤 약관 조항 후보가 있는가, 어떤 서류와 대응전략이 필요한가”를 판단합니다.</div>
+  </section>
+
+  <section class="panel report-panel" id="reportPanel" aria-hidden="true">
+    <div class="report-top"><div><h2>자동분석 리포트</h2><p>리포트 화면에서는 입력 화면이 숨겨집니다. 새 사건을 입력하려면 아래 초기화 버튼을 누르십시오.</p></div><div id="statusBadge" class="badge">분석 대기</div></div>
+    <div id="loadingPanel" class="loading"><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><h3>입력자료와 약관 문구를 대조 분석 중입니다</h3><p>청구 가능 유형, 준비서류, 지급거절 대응전략, 행정사 수행사항을 정리하고 있습니다.</p></div>
+    <div id="reportContent"></div>
+    <div class="action-row"><button id="reportResetBtn" class="btn btn-primary" type="button">새 사건 입력 / 입력값 초기화</button><button id="printBtn" class="btn btn-dark" type="button">출력하기 또는 PDF 저장</button><button id="copyBtn" class="btn btn-white" type="button">결과 요약 복사</button></div>
+  </section>
+</main>
+<div class="footer-note">본 프로그램은 상담 준비용 선별 도구입니다. 실제 청구 및 분쟁 대응 시에는 보험증권, 약관 원문, 의무기록 원본, 사고 입증자료를 대조해야 합니다.</div>
+
+<script>
+(function(){
+"use strict";
+const textFieldIds = ["medicalText","accidentText","policyText","policyTermsText","treatmentText","adminEvidenceText","liabilityText","claimHistoryText","memoText","documentExtractText"];
+const codeKeywordMap = [
+  {code:"M51", words:["추간판","디스크","요추","좌골신경통"]}, {code:"S32", words:["척추골절","압박골절","요추골절","골반골절"]},
+  {code:"S42", words:["쇄골골절","상완골골절","어깨골절"]}, {code:"S52", words:["요골골절","척골골절","손목골절"]},
+  {code:"S72", words:["대퇴골골절","고관절골절"]}, {code:"S82", words:["경골골절","비골골절","발목골절"]},
+  {code:"T60", words:["농약중독","제초제","살충제","농약"]}, {code:"T67", words:["열사병","온열질환","일사병","열탈진"]},
+  {code:"T63", words:["벌쏘임","뱀","독사","진드기"]}, {code:"S06", words:["뇌진탕","두부손상","외상성 뇌손상"]},
+  {code:"I60", words:["뇌출혈","지주막하출혈"]}, {code:"I63", words:["뇌경색"]}, {code:"I21", words:["심근경색"]},
+  {code:"C80", words:["암","악성신생물","종양"]}, {code:"F03", words:["치매"]}
+];
+const ruleSet = [
+ {id:"spine", title:"척추·추간판·압박골절", codes:["M51","M50","S32","S22"], words:["추간판","디스크","척추","압박골절","요추","경추"], claims:["상해후유장해 또는 질병후유장해 특약 검토", "실손의료비, 입원일당, 수술비 또는 시술 관련 담보 검토", "농작업 중 발생 시 농업인 안전보험 치료·휴업·장해급여 검토"], docs:["MRI 또는 CT 판독지", "초진기록지", "과거 동일 부위 치료 이력", "장해진단서 또는 치료종결 소견"], dispute:["퇴행성·기왕증 주장이 예상되므로 사고 전후 증상 변화와 영상자료를 비교 정리", "사고 기여도와 급성 악화 근거를 의무기록 중심으로 정리"]},
+ {id:"fracture", title:"골절·상해 사고", codes:["S42","S52","S72","S82","S92"], words:["골절","깁스","석고고정","핀고정","금속판","상해","염좌","파열"], claims:["골절진단비 청구 검토", "상해수술비, 깁스치료비, 입원일당 검토", "관절 기능 제한이 남으면 후유장해 특약 검토"], docs:["진단서", "초진기록지", "X-ray/CT 판독지", "수술확인서 또는 수술기록지", "입퇴원확인서"], dispute:["사고 경위와 최초 내원 기록이 불일치하지 않도록 시간순 정리", "관절면 침범·운동범위 제한 여부 확인"]},
+ {id:"machine", title:"농기계·농작업 사고", codes:["V84","V85","V86","W23","W24","S68","S88"], words:["농기계","트랙터","경운기","콤바인","관리기","예초기","끼임","깔림","절단","농작업"], claims:["농업인 안전보험 청구 검토", "농기계종합보험 검토", "상해후유장해, 수술비, 입원일당 검토", "운전자보험·법률비용 특약 검토"], docs:["농업경영체 등록확인서", "농업인 안전보험 가입확인서", "농기계 기종 및 보험가입 확인", "사고사실확인서", "119 또는 경찰기록", "작업장 사진"], dispute:["농작업성 입증자료를 먼저 정리", "기계 소유자·운전자·작업목적·사고장소를 분리하여 확인"]},
+ {id:"traffic", title:"교통사고·운전자보험", codes:["V","S"], words:["교통사고","차량","추돌","운전","신호위반","중앙선","벌금","형사합의","변호사"], claims:["자동차보험 대인·대물 접수 확인", "운전자보험 벌금, 변호사선임비용, 교통사고처리지원금 검토", "상해입원일당·상해수술비·상해후유장해 검토"], docs:["교통사고사실확인원", "진단서", "경찰기록", "보험사 접수번호", "형사합의 관련 자료"], dispute:["민사 보상과 운전자보험 청구 항목을 분리", "약식명령·공소제기·벌금 확정 여부 확인"]},
+ {id:"cancer", title:"암·종양·진단비", codes:["C","D00","D01","D02","D03","D04"], words:["암","악성신생물","상피내암","경계성종양","종양","조직검사","병리"], claims:["암진단비, 유사암진단비, 특정암진단비 검토", "암수술비, 항암방사선약물치료비, 입원일당 검토"], docs:["조직검사결과지", "병리보고서", "진단서", "수술기록지", "치료계획서"], dispute:["진단확정 기준이 병리학적 진단인지 확인", "상피내암·경계성종양 분류 쟁점 확인"]},
+ {id:"brainheart", title:"뇌혈관·심장질환", codes:["I60","I61","I63","I20","I21","I25"], words:["뇌출혈","뇌경색","뇌혈관","심근경색","협심증","스텐트","관상동맥"], claims:["뇌혈관질환 진단비 또는 뇌졸중 진단비 검토", "급성심근경색 또는 허혈성심장질환 진단비 검토", "수술비·입원일당·실손의료비 검토"], docs:["MRI/CT 판독지", "심전도·심장효소검사", "관상동맥조영술 결과", "진단서", "입퇴원확인서"], dispute:["약관상 보장 질병분류 코드와 실제 진단코드 일치 여부 확인", "진단확정 기준을 충족하는 검사자료 확보"]},
+ {id:"liability", title:"배상책임·화재·법률비용", codes:[], words:["배상책임","화재","누수","대물","대인","벌금","법률비용","변호사","과실"], claims:["일상생활배상책임, 가족화재벌금, 법률비용, 대인·대물배상 검토", "제3자 손해 발생 시 손해배상 책임과 보험 담보 분리 검토"], docs:["사고확인서", "피해사진", "수리견적서", "상대방 청구서", "경찰 또는 소방 기록", "합의서"], dispute:["고의·중과실·직무상 사고 면책 여부 확인", "손해액 산정자료와 책임비율 자료를 분리 정리"]}
+];
+let lastSummaryText = "";
+let lastAutoCodeValue = "";
+function el(id){ return document.getElementById(id); }
+function val(id){ const x=el(id); return x ? String(x.value||"").trim() : ""; }
+function norm(s){ return String(s||"").replace(/\s+/g," ").trim(); }
+function esc(s){ return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
+function hasAny(src, arr){ return arr.some(w => src.indexOf(w) !== -1); }
+function uniq(arr){ const out=[]; const seen=new Set(); arr.forEach(x=>{x=norm(x); if(x && !seen.has(x)){seen.add(x); out.push(x);}}); return out; }
+function allText(includeCode){ const parts=textFieldIds.map(val); if(includeCode){ parts.push(val("codeInput")); } return norm(parts.join(" ")); }
+function extractCodes(text){ const found=[]; const upper=String(text||"").toUpperCase(); const re=/\b[A-Z][0-9]{2}(?:\.[0-9A-Z]+)?\b/g; let m; while((m=re.exec(upper))!==null){ found.push(m[0]); } codeKeywordMap.forEach(item=>{ if(hasAny(text, item.words)){ found.push(item.code); } }); return uniq(found).slice(0,20); }
+function autoFillCodes(force){ const source=allText(false); const codes=extractCodes(source); const box=el("codeInput"); const msg=el("autoCodeResult"); if(!box || !msg){ return; } if(!codes.length){ msg.textContent="자동 추출된 질병코드가 없습니다. 진단서의 주상병 코드 또는 상병명을 직접 입력하십시오."; msg.className="status-line warn"; return; } const current=norm(box.value); const currentCodes=current ? current.split(/[,;\s]+/).filter(Boolean) : []; const merged=uniq((force ? currentCodes : currentCodes).concat(codes)); if(force || !current || current===lastAutoCodeValue){ box.value=merged.join(", "); lastAutoCodeValue=box.value; msg.textContent="자동 추출 코드: " + box.value; msg.className="status-line ok"; } else { msg.textContent="질병코드가 수동 수정되어 자동 덮어쓰기를 중단했습니다. 코드 자동추출 버튼을 누르면 병합됩니다. 추출 후보: " + codes.join(", "); msg.className="status-line warn"; } }
+function detectRules(text){ const upper=text.toUpperCase(); return ruleSet.filter(r=> r.codes.some(c=>upper.indexOf(c.toUpperCase())!==-1) || r.words.some(w=>text.indexOf(w)!==-1)); }
+function getContextType(text){ const selected=val("claimantType"); if(selected!=="auto"){ return selected; } if(hasAny(text,["농기계","농작업","경운기","트랙터","농업경영체","농협","고추밭","논","밭","하우스","축사"])){ return "farmer"; }
+ if(hasAny(text,["교통사고","차량","추돌","운전","벌금","형사합의"])){ return "traffic"; }
+ if(hasAny(text,["산재","근로자","회사","사업장","출근","업무 중","업무중"])){ return "worker"; }
+ return "general"; }
+function buildRequirements(text, hits){ const req=[]; const codeOrDiag=/\b[A-Z][0-9]{2}(?:\.[0-9A-Z]+)?\b/i.test(text) || hasAny(text,["진단","상병","골절","암","뇌출혈","뇌경색","심근경색","추간판","디스크","중독"]); if(!codeOrDiag){ req.push("KCD 질병코드 또는 정확한 상병명이 확인되지 않습니다. 병원 발급 진단서 또는 소견서의 주상병 코드를 입력창에 직접 입력해 주세요."); return req; }
+ if(hits.some(h=>h.id==="spine") && !hasAny(text,["퇴행성","기왕증","사고 기여도","MRI","CT"])){ req.push("정확한 척추 관련 청구 판단을 위해 MRI/CT 판독지 및 과거 병력, 기왕증 여부 확인이 필요합니다."); }
+ if(hits.some(h=>["fracture","machine","traffic"].includes(h.id)) && !hasAny(text,["농기계","하우스","밭","논","축사","농로","차량","계단","도로","작업 중","작업중","사고사실확인서","초진기록"])){ req.push("상해·골절 사고의 보험 적용 검토를 위해 초진기록지상의 구체적인 사고 경위 또는 사고사실확인서가 필요합니다."); }
+ if(!hasAny(text,["수술","고정술","치환술","시술","보존적 치료","물리치료","약물치료","수술기록지"])){ req.push("수술비 특약 및 치료 경과 판단을 위해 수술기록지 또는 치료 이력, 보존적 치료 여부를 추가로 확인해 주세요."); }
+ if(!val("policyTermsText")){ req.push("약관 조항 후보를 정확히 표시하려면 보험약관 원문의 지급사유, 지급하지 않는 사유, 청구서류 조항을 입력해 주세요."); }
+ return uniq(req); }
+function listHtml(items){ if(!items.length){ return '<div class="terms-block">표시할 항목이 없습니다.</div>'; } return '<ol class="list">'+items.map((x,i)=>'<li><span class="num">'+(i+1)+'</span><span>'+esc(x)+'</span></li>').join('')+'</ol>'; }
+function tagsHtml(hits){ return hits.length ? hits.map(h=>'<span class="tag">'+esc(h.title)+'</span>').join('') : '<span class="tag">자동 매칭 없음</span>'; }
+function needsHtml(req){ if(!req.length){ return '<section class="info success"><h3>정보가 충분합니다. 청구전략 리포트를 생성했습니다.</h3><p>현재 입력자료만으로 1차 청구 유형 선별 리포트를 만들 수 있습니다. 실제 접수 전에는 약관 원문, 의무기록 원본, 사고 입증자료를 다시 대조하십시오.</p></section>'; } return '<section class="info"><h3>⚠️ 정확한 분석을 위해 추가로 필요한 정보</h3><p>아래 자료를 보강하면 청구 가능 보험 유형, 약관 근거, 지급거절 대응전략의 정확도가 높아집니다.</p><div class="need-list">'+req.map((r,i)=>'<label class="need-item"><input type="checkbox"><div><strong>'+esc(r)+'</strong><span>확인 필요</span></div></label>').join('')+'</div></section>'; }
+function analyzeTerms(text, hits){ const terms=val("policyTermsText"); if(!terms){ return {items:["보험약관 원문이 입력되지 않아 특정 약관 조항 후보를 단정할 수 없습니다. 약관의 보험금 지급사유, 지급하지 않는 사유, 청구서류 조항을 입력해야 합니다."], excerpts:[]}; }
+ const keys=uniq(["보험금","지급사유","지급하지","면책","상해","질병","진단","수술","입원","장해","청구서류"].concat(hits.flatMap(h=>h.words.concat(h.claims.join(" ").split(/[ ,·]+/))))).filter(x=>x.length>=2);
+ const paragraphs=terms.split(/\n+|(?=제\s*\d+\s*조)|(?=\d+\.\s*)/).map(norm).filter(p=>p.length>8);
+ const matched=paragraphs.filter(p=>keys.some(k=>p.indexOf(k)!==-1)).slice(0,8);
+ const items=[]; if(matched.some(p=>p.indexOf("지급사유")!==-1 || p.indexOf("지급")!==-1)){ items.push("약관의 보험금 지급사유 문구와 현재 진단·사고 경위를 대조해 청구근거 조항 후보를 확인해야 합니다."); }
+ if(matched.some(p=>p.indexOf("지급하지")!==-1 || p.indexOf("면책")!==-1)){ items.push("약관의 보험금을 지급하지 않는 사유 또는 면책조항 후보가 감지되었습니다. 보험사 거절 사유와 사실관계를 분리하여 반박자료를 준비해야 합니다."); }
+ if(matched.some(p=>p.indexOf("청구서류")!==-1 || p.indexOf("서류")!==-1)){ items.push("약관상 청구서류 조항이 감지되었습니다. 진단서, 초진기록지, 수술확인서, 영상판독지 등 제출서류를 조항별로 맞춰 준비해야 합니다."); }
+ hits.forEach(h=>items.push(h.title+" 항목은 약관의 지급사유, 정의조항, 면책조항, 청구서류 조항과 함께 대조해야 합니다."));
+ return {items:uniq(items), excerpts:matched}; }
+function buildClaimItems(hits, type){ let claims=[]; if(!hits.length){ claims.push("입력자료가 부족하므로 진단서, 보험증권, 약관 원문, 사고 경위를 보강한 뒤 청구 유형을 다시 선별하십시오."); }
+ hits.forEach(h=>{ claims=claims.concat(h.claims); });
+ if(type==="farmer"){ claims.push("농업인 안전보험 또는 농기계종합보험 청구 가능성을 별도 확인하십시오."); }
+ if(type==="worker"){ claims.push("근로자성 또는 업무상 재해 가능성이 있으면 산재보험 요양·휴업·장해급여 신청 가능성을 검토하십시오."); }
+ if(type==="traffic"){ claims.push("자동차보험 보상과 운전자보험 청구 항목을 분리하여 검토하십시오."); }
+ claims.push("보험금 액수 산정이 아니라 청구 가능한 보험·특약·담보 유형을 선별하는 목적으로만 사용하십시오.");
+ return uniq(claims); }
+function buildDocs(hits,type){ let docs=["보험금청구서", "보험증권 또는 가입내역", "진단서", "초진기록지", "진료비 영수증 및 세부내역서", "입퇴원확인서"]; hits.forEach(h=>docs=docs.concat(h.docs)); if(type==="farmer"){ docs=docs.concat(["농업경영체 등록확인서", "농업인 안전보험 가입확인서", "농작업 중 사고사실확인서", "작업장 또는 농기계 사진"]); } if(type==="traffic"){ docs=docs.concat(["교통사고사실확인원", "자동차보험 접수번호", "경찰기록 또는 진술서"]); } if(type==="worker"){ docs=docs.concat(["근로계약 또는 업무지시 자료", "출퇴근 또는 업무수행 입증자료", "산재신청 관련 자료"]); } return uniq(docs); }
+function buildDisputes(hits,type,text){ let out=["보험사의 지급거절 또는 삭감 안내가 있으면 구두 설명이 아니라 서면 사유와 적용 약관 조항을 먼저 확보하십시오.", "보험사 주장, 약관 조항, 의무기록 사실관계를 표로 분리하여 반박자료를 정리하십시오."]; hits.forEach(h=>out=out.concat(h.dispute)); if(hasAny(text,["퇴행성","기왕증"])){ out.push("퇴행성 또는 기왕증 쟁점은 사고 전 치료력, 사고 후 증상 악화, 영상검사 변화, 의사소견을 묶어 대응하십시오."); } if(hasAny(text,["고지의무","계약전 알릴의무"])){ out.push("고지의무 위반 주장은 질문표 내용, 고지 당시 인식 가능성, 인과관계 제한 쟁점을 나누어 검토하십시오."); } if(type==="farmer"){ out.push("농업인 안전보험 부지급 시 농작업 목적, 작업 장소, 작업 도구, 목격자 진술, 농업 종사 사실을 보강하십시오."); } out.push("필요 시 보험사 이의신청, 손해사정 재검토, 내용증명, 금융감독원 민원 또는 분쟁조정 순서로 대응하십시오."); return uniq(out); }
+function buildAdminTasks(hits,type){ let tasks=["상담 초기에는 보험증권, 약관, 진단서, 초진기록지, 사고경위서를 먼저 확보하십시오.", "청구 가능한 보험·특약·담보를 목록화하고, 각 항목별 필수서류와 부족서류를 분리하십시오.", "보험사에 제출할 사고경위와 고객 진술이 초진기록지와 모순되지 않도록 정리하십시오.", "약관의 지급사유와 지급하지 않는 사유를 함께 검토해 예상 거절 쟁점을 미리 표시하십시오."]; if(type==="farmer"){ tasks.push("농업경영체 등록, 농작업성, 농기계 사용 사실, 농협 보험가입 여부를 확인하고 사고사실확인서 초안을 준비하십시오."); } if(type==="worker"){ tasks.push("근로자성, 업무수행성, 출퇴근 경로, 사업주 지시 여부를 확인해 산재 가능성을 검토하십시오."); } if(type==="traffic"){ tasks.push("교통사고사실확인원, 형사처분 진행 여부, 자동차보험 접수상태, 운전자보험 담보를 분리 정리하십시오."); } tasks.push("지급거절이 발생하면 거절 사유별 반박자료 목록, 이의신청서, 금감원 민원 또는 분쟁조정 신청서 초안 작성을 준비하십시오."); return uniq(tasks); }
+function riskInfo(hits, req){ const max=hits.some(h=>h.id==="machine"||h.id==="brainheart") ? 5 : hits.length>=2 ? 4 : hits.length ? 3 : 1; if(max>=5) return {label:"중대 검토", cls:"critical", desc:"중대 상해·질병 또는 분쟁 가능성이 높아 약관·의무기록·사고입증자료를 정밀 대조해야 합니다."}; if(max>=4) return {label:"정밀 검토", cls:"high", desc:"복수 담보 또는 후유장해·면책 쟁점이 예상되어 청구항목과 증빙을 세분화해야 합니다."}; if(max>=3) return {label:"청구 검토", cls:"", desc:"청구 가능한 보험 유형과 필요서류를 선별할 수 있습니다."}; return {label:"자료 보강", cls:"low", desc:"진단명, 질병코드, 사고경위, 약관 원문을 보강해야 합니다."}; }
+function buildReport(){ const text=allText(true); const hits=detectRules(text); const type=getContextType(text); const req=buildRequirements(text,hits); const risk=riskInfo(hits,req); const terms=analyzeTerms(text,hits); const patient=[val("patientName")?"성명: "+val("patientName"):"성명: 미입력", val("patientAge")?"연령: "+val("patientAge")+"세":"연령: 미입력", val("patientGender")?"성별: "+val("patientGender"):"성별: 미입력", "분석유형: "+({auto:"자동판단",farmer:"농업인·농작업",general:"일반 보험가입자",worker:"근로자·산재",traffic:"교통사고·운전자보험"}[type]||type)].join(" | ");
+ const now=new Date(); const date=now.getFullYear()+"년 "+String(now.getMonth()+1).padStart(2,"0")+"월 "+String(now.getDate()).padStart(2,"0")+"일 "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+ const claimItems=buildClaimItems(hits,type); const docs=buildDocs(hits,type); const disputes=buildDisputes(hits,type,text); const tasks=buildAdminTasks(hits,type);
+ let html='<div class="title-box"><div class="title-row"><div><div style="font-size:13px;font-weight:900;color:#bfdbfe;">보험 약관 정밀분석 및 청구전략 리포트</div><h2>청구 가능 유형·약관근거·대응전략 분석</h2><p>'+esc(patient)+'</p><p>분석일시: '+esc(date)+'</p></div><div class="risk '+risk.cls+'"><div style="font-size:12px;">종합상태</div><div style="font-size:22px;margin-top:4px;">'+esc(risk.label)+'</div></div></div><p style="background:rgba(255,255,255,.1);border-radius:15px;padding:12px;margin-top:14px;color:#e2e8f0;">'+esc(risk.desc)+'</p></div>';
+ html+=needsHtml(req);
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">🔎</div><div><h3>감지된 사고·진단 유형</h3><p>질병코드, 진단명, 사고 경위, 보험증권·약관 키워드 기반 분류</p></div></div><div class="tag-row">'+tagsHtml(hits)+'</div></section>';
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">📘</div><div><h3>약관 정밀분석: 청구근거 조항 후보</h3><p>입력된 약관 원문이 있을 때만 조항 후보를 표시합니다. 원문이 없으면 임의 단정하지 않습니다.</p></div></div>'+listHtml(terms.items)+(terms.excerpts.length?'<div class="terms-block"><strong>감지된 약관 문구 후보</strong>\n'+esc(terms.excerpts.join("\n\n"))+'</div>':'')+'</section>';
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">🧾</div><div><h3>청구 검토 대상 보험 및 청구 항목</h3><p>예상 수령액이 아니라 청구해야 할 보험·특약·담보 유형을 선별합니다.</p></div></div>'+listHtml(claimItems)+'</section>';
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">📂</div><div><h3>청구 준비서류</h3><p>접수 전 준비할 기본서류와 쟁점별 추가서류</p></div></div>'+listHtml(docs)+'</section>';
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">🛡️</div><div><h3>보험금을 제대로 청구하기 위한 실무 전략</h3><p>청구 누락, 서류 부족, 사실관계 불일치를 줄이기 위한 순서</p></div></div>'+listHtml(["먼저 보험증권과 약관을 확보하여 청구 가능한 담보를 빠짐없이 표시하십시오.","진단서·초진기록지·영상판독지·수술확인서의 표현이 약관상 지급사유와 연결되는지 확인하십시오.","동일 사고로 실손, 진단비, 수술비, 입원일당, 후유장해, 운전자보험, 배상책임이 중복 검토되는지 분리하십시오.","청구서 제출 전 보험사에 불리하게 해석될 수 있는 기왕증, 사고경위 불명확, 최초 내원 지연, 고지의무 쟁점을 미리 표시하십시오."])+'</section>';
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">⚖️</div><div><h3>지급거절·삭감·부지급 문제 발생 시 대응전략</h3><p>문제가 발생했을 때 확보할 자료와 절차</p></div></div>'+listHtml(disputes)+'</section>';
+ html+='<section class="report-card"><div class="section-head"><div class="section-icon">👔</div><div><h3>행정사가 해야 할 사항</h3><p>상담, 서류정리, 이의신청, 민원·분쟁 대응 업무</p></div></div>'+listHtml(tasks)+'</section>';
+ const summary="보험 약관 정밀분석 및 청구전략 리포트\n"+date+"\n"+patient+"\n\n종합상태: "+risk.label+"\n"+risk.desc+"\n\n[청구 검토 대상]\n"+claimItems.map((x,i)=>(i+1)+". "+x).join("\n")+"\n\n[청구 준비서류]\n"+docs.map((x,i)=>(i+1)+". "+x).join("\n")+"\n\n[지급거절 대응전략]\n"+disputes.map((x,i)=>(i+1)+". "+x).join("\n")+"\n\n[행정사 수행사항]\n"+tasks.map((x,i)=>(i+1)+". "+x).join("\n");
+ return {html, summary}; }
+function showReport(){ const main=el("appMain"); if(main){ main.classList.remove("input-mode"); main.classList.add("report-mode"); } const report=el("reportPanel"); if(report){ report.removeAttribute("aria-hidden"); } window.scrollTo({top:0, behavior:"smooth"}); }
+function showInput(){ const main=el("appMain"); if(main){ main.classList.remove("report-mode"); main.classList.add("input-mode"); } const report=el("reportPanel"); if(report){ report.setAttribute("aria-hidden","true"); } window.scrollTo({top:0, behavior:"smooth"}); }
+function analyzeCase(){ showReport(); const loading=el("loadingPanel"); const status=el("statusBadge"); const content=el("reportContent"); if(content){ content.innerHTML=""; } if(loading){ loading.style.display="block"; } if(status){ status.textContent="분석 중"; status.className="badge running"; } setTimeout(function(){ try{ autoFillCodes(false); const r=buildReport(); if(content){ content.innerHTML=r.html; } lastSummaryText=r.summary; if(status){ status.textContent="분석 완료"; status.className="badge done"; } } catch(err){ if(content){ content.innerHTML='<section class="info"><h3>분석 중 오류가 발생했습니다</h3><p>'+esc(err && err.message ? err.message : String(err))+'</p></section>'; } if(status){ status.textContent="분석 오류"; status.className="badge"; } } finally { if(loading){ loading.style.display="none"; } } },350); }
+function resetForm(){ ["claimantType","insuranceFocus","patientGender","farmStatus","safetyInsurance"].forEach(id=>{ const x=el(id); if(x){ x.selectedIndex=0; } }); ["patientName","patientAge","codeInput"].concat(textFieldIds).forEach(id=>{ const x=el(id); if(x){ x.value=""; } }); const f=el("analysisFiles"); if(f){ f.value=""; } const fs=el("fileStatus"); if(fs){ fs.textContent="선택된 파일이 없습니다."; fs.className="status-line warn"; } const log=el("parserLog"); if(log){ log.textContent="문서 파싱 대기 중입니다."; } const msg=el("autoCodeResult"); if(msg){ msg.textContent="자동추출 대기 중입니다."; msg.className="status-line warn"; } const content=el("reportContent"); if(content){ content.innerHTML=""; } lastSummaryText=""; lastAutoCodeValue=""; showInput(); }
+function fillSample(){ el("claimantType").value="farmer"; el("patientName").value="김농업"; el("patientAge").value="67"; el("patientGender").value="남성"; el("farmStatus").value="등록"; el("safetyInsurance").value="가입"; el("medicalText").value="진단명: 요추 추간판장애 및 제1요추 압박골절. 질병코드 M51.1, S32.0. MRI 촬영 후 입원치료. 퇴행성 변화 일부 있으나 사고 후 통증 악화."; el("accidentText").value="고추밭 작업을 마치고 경운기에서 내리던 중 밭두렁에서 미끄러져 허리와 엉덩방아를 찧음. 농작업 중 사고로 농협 사고접수 예정."; el("policyText").value="상해후유장해 특약, 골절진단비 특약, 상해수술비, 입원일당, 실손의료비 가입."; el("policyTermsText").value="제1조 보험금의 지급사유 회사는 피보험자가 보험기간 중 급격하고도 우연한 외래의 사고로 상해를 입고 그 직접결과로써 골절 진단을 받은 경우 골절진단보험금을 지급합니다. 제2조 상해후유장해보험금 피보험자가 상해의 직접결과로 장해분류표에서 정한 장해상태가 되었을 때 약관에 따라 상해후유장해보험금을 지급합니다. 제3조 수술보험금 피보험자가 상해 또는 질병의 치료를 직접적인 목적으로 수술을 받은 경우 수술보험금을 지급합니다. 제4조 보험금을 지급하지 않는 사유 회사는 피보험자의 고의, 질병 또는 체질적 요인이 주된 원인인 경우 등 약관에서 정한 사유에 해당하면 보험금을 지급하지 않을 수 있습니다. 청구서류 보험금청구서, 진단서, 초진기록지, 영상판독지, 수술확인서, 입퇴원확인서, 진료비 영수증 및 세부내역서를 제출해야 합니다."; el("treatmentText").value="입원치료 14일, MRI 및 CT 촬영, 보존적 치료, 보조기 착용, 약물치료 및 물리치료 시행. 수술은 현재 미시행."; el("adminEvidenceText").value="농업경영체 등록 확인 가능, 농협 사고접수 예정, 사고 장소 사진 및 목격자 진술 확보 예정."; el("claimHistoryText").value="보험사 청구 전 단계. 퇴행성 소견을 이유로 사고 기여도 다툼이 예상됨."; autoFillCodes(true); }
+function toggleNeed(e){ const item=e.target.closest(".need-item"); if(!item){ return; } const label=item.querySelector("span"); if(e.target.checked){ item.classList.add("checked"); if(label){ label.textContent="확인 완료"; } } else { item.classList.remove("checked"); if(label){ label.textContent="확인 필요"; } } }
+function copySummary(){ if(!lastSummaryText){ alert("먼저 분석을 실행하십시오."); return; } if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(lastSummaryText).then(()=>alert("결과 요약이 복사되었습니다.")).catch(()=>fallbackCopy()); } else { fallbackCopy(); } }
+function fallbackCopy(){ const t=document.createElement("textarea"); t.value=lastSummaryText; document.body.appendChild(t); t.select(); try{ document.execCommand("copy"); alert("결과 요약이 복사되었습니다."); } catch(e){ alert("복사 실패. 화면 내용을 직접 선택해 복사하십시오."); } document.body.removeChild(t); }
+function readFileText(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(String(r.result||"")); r.onerror=()=>reject(new Error("파일을 읽을 수 없습니다.")); r.readAsText(file,"utf-8"); }); }
+function loadScript(src){ return new Promise((resolve,reject)=>{ const old=document.querySelector('script[data-src="'+src+'"]'); if(old){ resolve(); return; } const s=document.createElement("script"); s.src=src; s.async=true; s.setAttribute("data-src",src); s.onload=resolve; s.onerror=()=>reject(new Error("외부 파서 로딩 실패: "+src)); document.head.appendChild(s); }); }
+async function parseFiles(evt){ const files=Array.from(evt.target.files||[]); const status=el("fileStatus"); const log=el("parserLog"); if(log){ log.textContent=""; } if(!files.length){ if(status){ status.textContent="선택된 파일이 없습니다."; } return; } if(status){ status.innerHTML="선택 파일:<br>"+files.map(f=>esc(f.name)).join("<br>"); status.className="status-line ok"; }
+ for(const file of files){ try{ let text=""; const name=file.name.toLowerCase(); if(/\.(txt|csv|json|md|xml|html|htm)$/.test(name) || String(file.type||"").startsWith("text/")){ text=await readFileText(file); } else if(name.endsWith(".docx")){ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"); const buf=await file.arrayBuffer(); const res=await window.mammoth.extractRawText({arrayBuffer:buf}); text=res.value||""; } else if(name.endsWith(".pdf")){ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"); window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise; const parts=[]; for(let p=1;p<=pdf.numPages;p++){ const page=await pdf.getPage(p); const c=await page.getTextContent(); parts.push(c.items.map(i=>i.str||"").join(" ")); } text=parts.join("\n"); } else if(/\.(jpg|jpeg|png|webp|bmp)$/.test(name) || String(file.type||"").startsWith("image/")){ await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"); const res=await window.Tesseract.recognize(file,"kor+eng"); text=res && res.data ? res.data.text || "" : ""; } else { text="파일명만 확인됨: "+file.name; }
+ const target=el("documentExtractText"); if(target){ target.value += (target.value?"\n\n":"") + "[첨부파일: "+file.name+"]\n" + text; } if(log){ log.textContent += "[성공] "+file.name+" 처리 완료\n"; } } catch(err){ if(log){ log.textContent += "[오류] "+file.name+" 처리 실패: "+(err.message||err)+"\n"; } } }
+ autoFillCodes(false); }
+function bind(){ el("analyzeBtn").addEventListener("click", analyzeCase); el("resetBtn").addEventListener("click", resetForm); el("reportResetBtn").addEventListener("click", resetForm); el("sampleBtn").addEventListener("click", fillSample); el("autoCodeBtn").addEventListener("click", ()=>autoFillCodes(true)); el("printBtn").addEventListener("click", ()=>{ if(!lastSummaryText){ alert("먼저 분석을 실행하십시오."); return; } window.print(); }); el("copyBtn").addEventListener("click", copySummary); el("reportContent").addEventListener("change", function(e){ if(e.target && e.target.type==="checkbox"){ toggleNeed(e); }}); textFieldIds.forEach(id=>{ const x=el(id); if(x){ x.addEventListener("input", ()=>autoFillCodes(false)); } }); const f=el("analysisFiles"); if(f){ f.addEventListener("change", parseFiles); } showInput(); }
+if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", bind); } else { bind(); }
+window.__insuranceAppTest={analyzeCase,resetForm,showReport,showInput,buildReport,autoFillCodes};
+})();
+</script>
+</body>
+</html>
